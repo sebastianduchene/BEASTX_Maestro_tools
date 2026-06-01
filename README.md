@@ -32,7 +32,23 @@ examples/
   beast_aln_2905_FLC_stems.sbatch   # a real worked GPU run
 ```
 
-## Use it WITHOUT Claude Code (just the scripts)
+## How to use
+
+The typical workflow on Maestro is three steps:
+
+1. **Know two things about your run** — is the alignment *partitioned* (and into how
+   many partitions `K`), and roughly how many *unique site patterns* it has. These
+   two facts decide CPU vs GPU and the thread count (see the rules above). You can
+   usually skip counting patterns — for a large single alignment it's far above 860
+   (→ GPU), and for partitioned data `K` alone decides it (→ CPU).
+2. **Pick the config** — let `recommend.sh` (or the Claude Code skill) choose the
+   partition, CPU/GPU, and threads for you.
+3. **Submit** — run `submit.sh` (or `sbatch` a template) **from the folder where you
+   want the output files**, then watch the queue with `squeue -A edid`.
+
+Two ways to do steps 2–3: the standalone scripts, or the Claude Code skill.
+
+### Option 1 — standalone scripts (no Claude Code)
 
 The helper scripts are plain Bash and work on Maestro on their own.
 
@@ -59,7 +75,7 @@ cd BEASTX_Maestro_tools/beast-slurm/templates
 usually skip this — for a large single alignment patterns far exceed 860 (→ GPU),
 and for partitioned data the number of partitions alone decides it (→ CPU).
 
-## Use it WITH Claude Code (the skill)
+### Option 2 — as a Claude Code skill
 
 Install the skill so Claude writes/submits the scripts for you. Pick one:
 
