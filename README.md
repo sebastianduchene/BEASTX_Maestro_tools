@@ -70,6 +70,41 @@ cd BEASTX_Maestro_tools/beast-slurm/templates
 `--mem 32G`, `--dry-run`, `-h`. Or copy a `templates/*.sbatch` file, edit the
 `#SBATCH` lines, and `sbatch` it directly.
 
+**Example output.** `--dry-run` prints the decision and the exact `sbatch` command
+without submitting. A large unpartitioned alignment routes to a single GPU:
+
+```text
+$ ./submit.sh analysis.xml --patterns 4634 --dry-run
+============================================================
+ BEAST submit — analysis.xml
+   site patterns : 4634   partitions: 1
+   decision      : GPU / single RTX PRO 6000 Blackwell
+   reason        : >= ~860 site patterns: single GPU ~2x faster than CPU.
+   template      : beast_gpu.sbatch
+   threads       : 11   mem: 16G   time: 2-00:00:00
+   caveat        : ~860 threshold was A40-calibrated; Maestro's RTX PRO 6000 Blackwell is faster (threshold conservative).
+============================================================
+[dry-run] sbatch --cpus-per-task=11 --time=2-00:00:00 --mem=16G --job-name=beast_analysis beast_gpu.sbatch analysis.xml
+```
+
+…while a partitioned alignment routes to CPU with one thread per partition:
+
+```text
+$ ./submit.sh analysis.xml --patterns 480 --partitions 11 --dry-run
+============================================================
+ BEAST submit — analysis.xml
+   site patterns : 480   partitions: 11
+   decision      : CPU / partitioned
+   reason        : partitioned data: GPU >2x slower than multithreading; one thread per partition is fastest.
+   template      : beast_cpu.sbatch
+   threads       : 11   mem: 16G   time: 2-00:00:00
+   caveat        : ~860 threshold was A40-calibrated; Maestro's RTX PRO 6000 Blackwell is faster (threshold conservative).
+============================================================
+[dry-run] sbatch --cpus-per-task=11 --time=2-00:00:00 --mem=16G --job-name=beast_analysis beast_cpu.sbatch analysis.xml
+```
+
+Drop `--dry-run` to actually submit.
+
 **Getting the site-pattern count:** start a short run on a compute node
 (`beast <file>.xml`), let the `... <N> patterns` line print, then Ctrl-C. You can
 usually skip this — for a large single alignment patterns far exceed 860 (→ GPU),
