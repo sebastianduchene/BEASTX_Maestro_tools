@@ -1,0 +1,21 @@
+# SLURM job output
+*.out
+*.err
+slurm-*.out
+
+# BEAST run outputs
+*.log
+*.trees
+*.ops
+*.states
+*.checkpoint
+
+# Data (don't commit alignments)
+*.xml
+*.fasta
+*.nex
+*.nexus
+
+# OS / editor cruft
+.DS_Store
+*~
